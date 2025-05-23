@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Asistent AI Vânzări</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="chat-container">
+        <h1>Asistentul tău AI de Vânzări</h1>
+        <div id="chat-box"></div>
+        <input type="text" id="username" placeholder="Numele tău">
+        <input type="text" id="message" placeholder="Scrie un mesaj..." autofocus>
+        <button onclick="sendMessage()">Trimite</button>
+    </div>
+
+    <script>
+        const input = document.getElementById("message");
+        input.addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
+            const msg = document.getElementById("message").value;
+            const name = document.getElementById("username").value || "Vizitator";
+
+            if (!msg.trim()) return;
+
+            const chatBox = document.getElementById("chat-box");
+            chatBox.innerHTML += `<div class="user-msg"><strong>${name}:</strong> ${msg}</div>`;
+            document.getElementById("message").value = "";
+
+            fetch("/send", {
+                method: "POST",
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ message: msg, name: name })
+            })
+            .then(response => response.json())
+            .then(data => {
+                chatBox.innerHTML += `<div class="bot-msg"><strong>AI:</strong> ${data.reply}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            });
+        }
+    </script>
+</body>
+</html>
